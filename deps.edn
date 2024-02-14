@@ -20,4 +20,4 @@
                          :extra-paths ["src"
                                        "test"]
                          :main-opts ["-m" "shadow.cljs.devtools.cli"]}}
- :mvn/repos {"github" {:url "https://maven.pkg.github.com/janetacarr/quadtree-cljc"}}}
+ :mvn/repos {"github" {:url "https://maven.pkg.github.com/janetacarr/masala"}}}
