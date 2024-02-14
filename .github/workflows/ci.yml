@@ -1,0 +1,64 @@
+name: Clojure JAR CI/CD
+
+on:
+  pull_request:
+    branches: [ master, main ]
+  push:
+    branches: [ master, main ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    if: contains(fromJSON('["janetacarr"]'), github.actor) # Limit to active contributors
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+      - name: Cache Clojure dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/deps.edn') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Install Clojure
+        run: |
+          curl -L -O https://github.com/clojure/brew-install/releases/latest/download/posix-install.sh
+          chmod +x posix-install.sh
+          sudo ./posix-install.sh
+      - name: Test with tools.build
+        run: clojure -M:test
+
+  build-jar-and-publish:
+    runs-on: ubuntu-latest
+    needs: test-and-build
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+      - name: Cache Clojure dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/deps.edn') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Install Clojure
+        run: |
+          curl -L -O https://github.com/clojure/brew-install/releases/latest/download/posix-install.sh
+          chmod +x posix-install.sh
+          sudo ./posix-install.sh
+      - name: Build JAR
+        run: clojure -T:build jar
+      - name: Create settings.xml for Maven
+        run: |
+          echo '<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd"><servers><server><id>github</id><username>${{ secrets.GH_USERNAME }}</username><password>${{ secrets.GH_PAT }}</password></server><server><id>clojars</id><username>${{ secrets.CLOJARS_USERNAME }}</username><password>${{ secrets.CLOJARS_TOKEN }}</password></server></servers></settings>' > $HOME/.m2/settings.xml
+      - name: Publish JAR to GitHub Packages
+        run: clojure -T:build deploy :repository github
+      - name: Publish JAR to Clojars
+        run: clojure -T:build deploy :repository clojars
