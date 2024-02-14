@@ -1,5 +1,7 @@
 # masala
+
 [![Clojars Project](https://img.shields.io/clojars/v/com.janetacarr/masala.svg)]
+
 Currying in Clojure for fun and learning.
 
 ``` clojure
