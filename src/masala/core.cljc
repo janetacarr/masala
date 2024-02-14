@@ -4,8 +4,8 @@
   Optionally, serve with rice")
 
 (defmacro curry
-  "Curry a body of expressions as if it were a fn f
-  (f x y) => z becomes g(x) => (h(y) => z)"
+  "Curry a body of expressions as if it were a fn f:
+  (f x y) => z becomes (g x) => h where (h y) => z"
   [name args & body]
   (let [num-args  (count args)
         first-arg (if (= '& (first args))
@@ -21,7 +21,9 @@
 
 (defmacro defcurried
   "Like defn, but creates a curried function var `name`
-  where (f x y) => z becomes g(x) => (h(y) => z) etc."
+  with the body of expressions. Currying transforms
+  a function of multiple arguments into something like this:
+  (f x y) => z becomes (g x) => h where (h y) => z."
   [name doc args & body]
   `(def ~(with-meta name {:arglists `'~(list args)})
      ~doc
