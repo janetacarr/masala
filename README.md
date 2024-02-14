@@ -1,6 +1,6 @@
 # masala
 
-[![Clojars Project](https://img.shields.io/clojars/v/com.janetacarr/masala.svg)]
+[![Clojars Project](https://img.shields.io/clojars/v/com.janetacarr/masala.svg)](https://clojars.org/com.janetacarr/masala)
 
 Currying in Clojure for fun and learning.
 
