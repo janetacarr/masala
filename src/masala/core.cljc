@@ -49,4 +49,5 @@
   "Takes a curried function `f` and fewer than expected `args` and returns
   a partial function application."
   [f & args]
-  (apply do-curry f args))
+  (fn [& xs]
+    (apply do-curry f (into (vec args) (vec xs)))))
